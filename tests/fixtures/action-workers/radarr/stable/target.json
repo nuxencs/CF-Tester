@@ -1,0 +1,7 @@
+{
+  "application": "radarr",
+  "channel": "stable",
+  "upstreamChannel": "master",
+  "version": "test-radarr",
+  "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+printf '%s\n' '{"Name":"Sonarr action","Source":null,"inputType":"storedFile","passed":true,"matched":[],"missing":[],"unexpected":[],"diagnostics":[]}'

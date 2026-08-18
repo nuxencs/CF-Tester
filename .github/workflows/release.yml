@@ -1,0 +1,201 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.value }}
+      guides_commit: ${{ steps.guides.outputs.commit }}
+
+    steps:
+      - name: Checkout CF-Tester
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+
+      - name: Checkout Guides
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          repository: TRaSH-Guides/Guides
+          path: Guides
+          persist-credentials: false
+
+      - name: Read channel matrix
+        id: targets
+        run: echo "value=$(python3 scripts/channel_matrix.py lock-matrix channels.lock.json)" >>"$GITHUB_OUTPUT"
+
+      - name: Record Guides commit
+        id: guides
+        run: |
+          guides_commit="$(git -C Guides rev-parse HEAD)"
+          echo "commit=$guides_commit" >>"$GITHUB_OUTPUT"
+          echo "Guides commit: \`$guides_commit\`" >>"$GITHUB_STEP_SUMMARY"
+
+  validate:
+    needs: matrix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout CF-Tester
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+
+      - name: Checkout Guides
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          repository: TRaSH-Guides/Guides
+          ref: ${{ needs.matrix.outputs.guides_commit }}
+          path: Guides
+          persist-credentials: false
+
+      - name: Test repository
+        run: ./scripts/check-repository.sh Guides
+
+      - name: Test composite action
+        id: composite
+        uses: ./
+        env:
+          CF_TESTER_WORKER_DIR: ${{ github.workspace }}/tests/fixtures/action-workers
+        with:
+          application: radarr
+          channel: stable
+          guides-path: ${{ github.workspace }}/Guides
+          worker-release: v-test
+          manifest-sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+          junit-path: ${{ runner.temp }}/composite-results.xml
+
+      - name: Check composite action outputs
+        env:
+          JUNIT_PATH: ${{ steps.composite.outputs['junit-path'] }}
+          UPSTREAM_COMMIT: ${{ steps.composite.outputs['upstream-commit'] }}
+          UPSTREAM_VERSION: ${{ steps.composite.outputs['upstream-version'] }}
+        run: |
+          test -f "$JUNIT_PATH"
+          test "$UPSTREAM_VERSION" = test-radarr
+          test "$UPSTREAM_COMMIT" = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+  build:
+    needs: [matrix, validate]
+    name: Build ${{ matrix.application }}/${{ matrix.channel }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.targets) }}
+
+    steps:
+      - name: Checkout CF-Tester
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout ${{ matrix.application }}
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          repository: ${{ matrix.application == 'radarr' && 'Radarr/Radarr' || 'Sonarr/Sonarr' }}
+          ref: ${{ matrix.commit }}
+          path: upstream
+          persist-credentials: false
+
+      - name: Checkout Guides
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          repository: TRaSH-Guides/Guides
+          ref: ${{ needs.matrix.outputs.guides_commit }}
+          path: Guides
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4.3.1
+        with:
+          dotnet-version: |
+            6.0.405
+            8.0.421
+
+      - name: Build release artifacts
+        run: >-
+          ./scripts/build-release.sh
+          "${{ matrix.application }}"
+          "${{ matrix.channel }}"
+          "${{ github.workspace }}/upstream"
+          "$RUNNER_TEMP/dist"
+
+      - name: Test release artifact
+        env:
+          APPLICATION: ${{ matrix.application }}
+          CHANNEL: ${{ matrix.channel }}
+          GUIDES_COMMIT: ${{ needs.matrix.outputs.guides_commit }}
+          GUIDES_DIR: ${{ github.workspace }}/Guides
+        run: |
+          worker_root="$RUNNER_TEMP/release-workers"
+          worker_dir="$worker_root/$APPLICATION/$CHANNEL"
+          archive="$RUNNER_TEMP/dist/cf-tester-$APPLICATION-$CHANNEL-linux-x64.tar.gz"
+          mkdir -p "$worker_dir"
+          tar -xzf "$archive" -C "$worker_dir"
+          CF_TESTER_WORKER_DIR="$worker_root" ./scripts/run-action.sh \
+            --application "$APPLICATION" \
+            --channel "$CHANNEL" \
+            --guides-path "$GUIDES_DIR" \
+            --junit "$RUNNER_TEMP/cf-test-results.xml"
+          {
+            echo "## Tested release artifact"
+            echo
+            echo "- Target: $APPLICATION/$CHANNEL"
+            echo "- Guides commit: $GUIDES_COMMIT"
+          } >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Stage release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: release-${{ matrix.application }}-${{ matrix.channel }}
+          path: ${{ runner.temp }}/dist/*
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    needs: [matrix, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout CF-Tester
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          pattern: release-*
+          path: ${{ runner.temp }}/dist
+          merge-multiple: true
+
+      - name: Build release manifest
+        run: |
+          python3 scripts/channel_matrix.py build-manifest \
+            channels.lock.json "$GITHUB_REF_NAME" "$RUNNER_TEMP/dist" \
+            "$RUNNER_TEMP/dist/cf-tester-manifest.json"
+          (
+            cd "$RUNNER_TEMP/dist"
+            sha256sum cf-tester-manifest.json >cf-tester-manifest.sha256
+          )
+          echo "Guides commit: \`${{ needs.matrix.outputs.guides_commit }}\`" \
+            >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DIST_DIR: ${{ runner.temp }}/dist
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          "$DIST_DIR"/*
+          --verify-tag
+          --generate-notes
+          --title "CF-Tester $GITHUB_REF_NAME"

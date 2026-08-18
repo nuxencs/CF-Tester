@@ -1,0 +1,63 @@
+name: TRaSH Custom Format Tester
+description: Test TRaSH Custom Formats with pinned Radarr and Sonarr code.
+
+inputs:
+  application:
+    description: Application to test. Supported values are radarr and sonarr.
+    required: true
+  channel:
+    description: >-
+      Pinned channel to test. Radarr supports stable, develop, and nightly.
+      Sonarr supports stable and develop.
+    required: true
+  guides-path:
+    description: Path to the checked-out Guides repository.
+    required: false
+    default: .
+  worker-release:
+    description: CF-Tester release tag that contains the pinned worker.
+    required: true
+  manifest-sha256:
+    description: Expected SHA-256 value for the release manifest.
+    required: true
+  junit-path:
+    description: Path for the JUnit report.
+    required: false
+    default: cf-test-results.xml
+
+outputs:
+  junit-path:
+    description: Path to the JUnit report.
+    value: ${{ steps.test.outputs.junit }}
+  upstream-version:
+    description: Exact upstream application version tested.
+    value: ${{ steps.test.outputs['upstream-version'] }}
+  upstream-commit:
+    description: Exact upstream application commit tested.
+    value: ${{ steps.test.outputs['upstream-commit'] }}
+
+runs:
+  using: composite
+  steps:
+    - id: test
+      shell: bash
+      env:
+        CF_TESTER_INPUT_APPLICATION: ${{ inputs.application }}
+        CF_TESTER_INPUT_CHANNEL: ${{ inputs.channel }}
+        CF_TESTER_INPUT_GUIDES_PATH: ${{ inputs.guides-path }}
+        CF_TESTER_INPUT_WORKER_RELEASE: ${{ inputs.worker-release }}
+        CF_TESTER_INPUT_MANIFEST_SHA256: ${{ inputs.manifest-sha256 }}
+        CF_TESTER_INPUT_JUNIT_PATH: ${{ inputs.junit-path }}
+        CF_TESTER_REPOSITORY: ${{ github.action_repository }}
+      run: >-
+        "$GITHUB_ACTION_PATH/scripts/run-action.sh"
+        --application "$CF_TESTER_INPUT_APPLICATION"
+        --channel "$CF_TESTER_INPUT_CHANNEL"
+        --guides-path "$CF_TESTER_INPUT_GUIDES_PATH"
+        --worker-release "$CF_TESTER_INPUT_WORKER_RELEASE"
+        --manifest-sha256 "$CF_TESTER_INPUT_MANIFEST_SHA256"
+        --junit "$CF_TESTER_INPUT_JUNIT_PATH"
+
+branding:
+  icon: check-circle
+  color: blue

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+printf '%s\n' '{"Name":"Radarr action","Source":null,"inputType":"remoteRelease","passed":true,"matched":[],"missing":[],"unexpected":[],"diagnostics":[]}'

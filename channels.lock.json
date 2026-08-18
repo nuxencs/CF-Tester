@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "applications": {
+    "radarr": {
+      "stable": {
+        "upstreamChannel": "master",
+        "version": "6.3.0.10514",
+        "commit": "7827e5368947f158ad06f757334f5cde6c406411"
+      },
+      "develop": {
+        "upstreamChannel": "develop",
+        "version": "6.4.1.10545",
+        "commit": "15369ed5c359c9704783d243ce2b55e59a40a3a3"
+      },
+      "nightly": {
+        "upstreamChannel": "nightly",
+        "version": "6.4.2.10574",
+        "commit": "ca451608dc60c6cec754aba8d96bfa30e9468ed5"
+      }
+    },
+    "sonarr": {
+      "stable": {
+        "upstreamChannel": "main",
+        "version": "4.0.19.2979",
+        "commit": "4ff1b780010d3d9ec76a4864dce96b6494e9caea"
+      },
+      "develop": {
+        "upstreamChannel": "develop",
+        "version": "4.0.19.3001",
+        "commit": "e7caf8fbaa8e7b9dff48ce26b476ebcad7fd7324"
+      }
+    }
+  }
+}

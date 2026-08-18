@@ -1,0 +1,7 @@
+.dotnet/
+.DS_Store
+artifacts/
+**/bin/
+**/obj/
+**/__pycache__/
+*.pyc

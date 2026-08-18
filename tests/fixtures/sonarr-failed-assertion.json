@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "application": "sonarr",
+  "cases": [
+    {
+      "name": "Freeleech must match",
+      "input": {
+        "type": "remoteRelease",
+        "title": "Series.S01E01.1080p.WEB-DL.DDP5.1.H.264-RlsGrp"
+      },
+      "expected": {
+        "matches": [
+          {
+            "trashId": "d7c747094a7c65f4c2de083c24899e8b",
+            "name": "FreeLeech"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "application": "sonarr",
+  "channel": "stable",
+  "upstreamChannel": "main",
+  "version": "test-sonarr",
+  "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

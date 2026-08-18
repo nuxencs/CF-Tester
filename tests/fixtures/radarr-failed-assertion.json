@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "application": "radarr",
+  "cases": [
+    {
+      "name": "Freeleech must match",
+      "input": {
+        "type": "remoteRelease",
+        "title": "Movie.2025.1080p.WEB-DL.DDP5.1.H.264-RlsGrp"
+      },
+      "expected": {
+        "matches": [
+          {
+            "trashId": "0d91270a7255a1e388fa85e959f359d8",
+            "name": "FreeLeech"
+          }
+        ]
+      }
+    }
+  ]
+}
