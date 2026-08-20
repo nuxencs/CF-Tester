@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "application": "radarr",
+  "cases": [
+    {
+      "name": "SQP-4 HDR WEB score",
+      "source": "https://github.com/TRaSH-Guides/Guides/blob/master/docs/json/radarr/cf/hdr.json",
+      "input": {
+        "type": "remoteRelease",
+        "title": "Movie.2024.2160p.WEB-DL.DDP5.1.HDR10.H.265-FLUX",
+        "mediaTitle": "Movie",
+        "year": 2024,
+        "originalLanguage": "English",
+        "sizeBytes": 25000000000,
+        "indexerFlags": [
+          "G_Freeleech"
+        ],
+        "languages": [
+          "English"
+        ]
+      },
+      "profile": {
+        "trashId": "013f89e6da27519fe56cf482702a2db9",
+        "name": "[SQP] SQP-4"
+      },
+      "additionalFormats": [
+        {
+          "trashId": "493b6d1dbec3c3364c59d7607f7e3405",
+          "name": "HDR"
+        }
+      ],
+      "expected": {
+        "matches": [
+          {
+            "trashId": "fb392fb0d61a010ae38e49ceaa24a1ef",
+            "name": "2160p"
+          },
+          {
+            "trashId": "c20f169ef63c5f40c2def54abaf4438e",
+            "name": "WEB Tier 01"
+          },
+          {
+            "trashId": "493b6d1dbec3c3364c59d7607f7e3405",
+            "name": "HDR"
+          }
+        ],
+        "doesNotMatch": [
+          {
+            "trashId": "90a6f9a284dff5103f6346090e6280c8",
+            "name": "LQ"
+          }
+        ],
+        "profileScore": {
+          "total": 2351,
+          "formats": [
+            {
+              "trashId": "fb392fb0d61a010ae38e49ceaa24a1ef",
+              "name": "2160p",
+              "score": 151
+            },
+            {
+              "trashId": "c20f169ef63c5f40c2def54abaf4438e",
+              "name": "WEB Tier 01",
+              "score": 1700
+            },
+            {
+              "trashId": "493b6d1dbec3c3364c59d7607f7e3405",
+              "name": "HDR",
+              "score": 500
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -36,6 +36,13 @@ Run the repository checks with:
 ./scripts/check-repository.sh /path/to/Guides
 ```
 
+## Examples
+
+The runnable [Radarr](examples/radarr.json) and
+[Sonarr](examples/sonarr.json) cases show every case-level and remote-release
+option. CF-Tester uses them to test itself. The full test suite belongs in the
+Guides repository.
+
 ## Supported channels
 
 `channels.lock.json` pins these targets to exact versions and commits:

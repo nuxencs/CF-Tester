@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "application": "sonarr",
+  "cases": [
+    {
+      "name": "WEB-2160p HDR score",
+      "source": "https://github.com/TRaSH-Guides/Guides/blob/master/docs/json/sonarr/cf/hdr.json",
+      "input": {
+        "type": "remoteRelease",
+        "title": "Series.S01E01.2160p.WEB-DL.DDP5.1.HDR10.H.265-FLUX",
+        "mediaTitle": "Series",
+        "year": 2024,
+        "originalLanguage": "English",
+        "episodeTitles": [
+          "Pilot"
+        ],
+        "sizeBytes": 3000000000,
+        "indexerFlags": [
+          "Freeleech"
+        ],
+        "languages": [
+          "English"
+        ]
+      },
+      "profile": {
+        "trashId": "d1498e7d189fbe6c7110ceaabb7473e6",
+        "name": "WEB-2160p"
+      },
+      "additionalFormats": [
+        {
+          "trashId": "505d871304820ba7106b693be6fe4a9e",
+          "name": "HDR"
+        }
+      ],
+      "expected": {
+        "matches": [
+          {
+            "trashId": "e6258996055b9fbab7e9cb2f75819294",
+            "name": "WEB Tier 01"
+          },
+          {
+            "trashId": "505d871304820ba7106b693be6fe4a9e",
+            "name": "HDR"
+          }
+        ],
+        "doesNotMatch": [
+          {
+            "trashId": "9c11cd3f07101cdba90a2d81cf0e56b4",
+            "name": "LQ"
+          }
+        ],
+        "profileScore": {
+          "total": 2200,
+          "formats": [
+            {
+              "trashId": "e6258996055b9fbab7e9cb2f75819294",
+              "name": "WEB Tier 01",
+              "score": 1700
+            },
+            {
+              "trashId": "505d871304820ba7106b693be6fe4a9e",
+              "name": "HDR",
+              "score": 500
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

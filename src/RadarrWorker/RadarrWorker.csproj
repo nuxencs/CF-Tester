@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <!-- Radarr.Core references FFprobe, but CF-Tester does not execute it. -->
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(RadarrSource)/src/NzbDrone.Core/Radarr.Core.csproj" />

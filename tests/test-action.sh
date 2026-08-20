@@ -10,6 +10,11 @@ fi
 temp_dir="$(mktemp -d)"
 junit_path="$temp_dir/radarr-results.xml"
 action_output="$temp_dir/action-output"
+example_guides_dir="$temp_dir/Guides"
+mkdir -p "$example_guides_dir"
+ln -s "$guides_dir/docs" "$example_guides_dir/docs"
+"$tester_dir/scripts/copy-example-cases.sh" "$example_guides_dir"
+guides_dir="$example_guides_dir"
 
 python3 - "$tester_dir/action.yml" <<'PY'
 import sys
