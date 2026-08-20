@@ -7,6 +7,7 @@ if [[ -z "$guides_dir" ]]; then
   echo "ERROR: set GUIDES_DIR to a Guides checkout" >&2
   exit 2
 fi
+guides_dir="$(cd "$guides_dir" && pwd)"
 temp_dir="$(mktemp -d)"
 junit_path="$temp_dir/radarr-results.xml"
 action_output="$temp_dir/action-output"
